@@ -9,31 +9,31 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "create an eBook in the MOBI format - out of POD formatted content.",
-  "AUTHOR" => "Boris D\303\244ppen <boris_daeppen\@bluewin.ch>",
-  "BUILD_REQUIRES" => {},
-  "CONFIGURE_REQUIRES" => {
-    "ExtUtils::MakeMaker" => "6.30"
+  'ABSTRACT' => 'create an eBook in the MOBI format - out of POD formatted content.',
+  'AUTHOR' => 'Boris Däppen <boris_daeppen@bluewin.ch>',
+  'BUILD_REQUIRES' => {},
+  'CONFIGURE_REQUIRES' => {
+    'ExtUtils::MakeMaker' => '6.30'
   },
-  "DISTNAME" => "EBook-MOBI",
-  "EXE_FILES" => [],
-  "LICENSE" => "artistic_2",
-  "NAME" => "EBook::MOBI",
-  "PREREQ_PM" => {
-    "Carp" => "1.11",
-    "Data::Random" => "0.05",
-    "File::Basename" => "2.77",
-    "File::Spec" => "3.30",
-    "File::Temp" => "0.22",
-    "HTML::Entities" => "3.64",
-    "IO::String" => "1.08",
-    "Image::Resize" => "0.5",
-    "Pod::Parser" => "1.37",
-    "Text::Trim" => "1.02"
+  'DISTNAME' => 'EBook-MOBI',
+  'EXE_FILES' => [],
+  'LICENSE' => 'artistic_2',
+  'NAME' => 'EBook::MOBI',
+  'PREREQ_PM' => {
+    'Carp' => '1.11',
+    'Data::Random' => '0.05',
+    'File::Basename' => '2.77',
+    'File::Spec' => '3.30',
+    'File::Temp' => '0.22',
+    'HTML::Entities' => '3.64',
+    'IO::String' => '1.08',
+    'Image::Resize' => '0.5',
+    'Pod::Parser' => '1.37',
+    'Text::Trim' => '1.02'
   },
-  "VERSION" => "0.1",
-  "test" => {
-    "TESTS" => "t/*.t"
+  'VERSION' => '0.2',
+  'test' => {
+    'TESTS' => 't/*.t'
   }
 );
 

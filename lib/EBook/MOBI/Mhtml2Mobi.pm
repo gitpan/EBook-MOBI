@@ -31,8 +31,8 @@ use File::Spec;
 use EBook::MOBI::Picture;
 
 # Use the library, downloaded from MobiPerl
-use EBook::MOBI::Palm::PDB;
-use EBook::MOBI::Palm::Doc;
+use EBook::MOBI::MobiPerl::Palm::PDB;
+use EBook::MOBI::MobiPerl::Palm::Doc;
 use EBook::MOBI::MobiPerl::MobiHeader;
 use EBook::MOBI::MobiPerl::Util;
 
@@ -41,7 +41,7 @@ use constant DOC_UNCOMPRESSED => scalar 1;
 use constant DOC_COMPRESSED => scalar 2;
 use constant DOC_RECSIZE => scalar 4096;
 
-our $VERSION = 0.1;
+our $VERSION = 0.2;
 
 # Constructor of this class
 sub new {
@@ -100,7 +100,7 @@ sub pack {
 
     # Palm DOC Header
     # According to MobiPerl (html2mobi)
-    my $mobi = new EBook::MOBI::Palm::Doc;
+    my $mobi = EBook::MOBI::MobiPerl::Palm::Doc->new();
     $mobi->{attributes}{"resource"} = 0;
     $mobi->{attributes}{"ResDB"} = 0;
     $mobi->{"name"} = $title;
@@ -134,7 +134,7 @@ sub pack {
         my $record = $mobi->append_Record;
         my $chunk = substr($html,$i,DOC_RECSIZE);
         $record->{'data'} =
-            EBook::MOBI::Palm::Doc::_compress_record
+            EBook::MOBI::MobiPerl::Palm::Doc::_compress_record
             ( $version, $chunk );
         $record->{'id'} = $current_record_index++;
         $header->{'records'} ++;
@@ -183,7 +183,7 @@ sub pack {
             . "record_index: $current_record_index, image: $img_path");
 
         # According to MobiPerl (html2mobi)
-        my $img = EBook::MOBI::Palm::PDB->new_Record();
+        my $img = EBook::MOBI::MobiPerl::Palm::PDB->new_Record();
         $img->{"categori"} = 0;
         $img->{"attributes"}{"Dirty"} = 1;
         # increase counter, for the next picture to be added...

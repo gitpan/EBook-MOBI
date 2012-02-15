@@ -3,7 +3,8 @@ package EBook::MOBI;
 use strict;
 use warnings;
 
-our $VERSION = 0.2;
+our $VERSION = 0.1;
+our $DEBUG   = 0;
 
 # needed CPAN stuff
 use IO::String;
@@ -50,6 +51,7 @@ sub debug_on {
     my ($self, $ref_to_debug_sub) = @_;
 
     $self->{ref_to_debug_sub} = $ref_to_debug_sub;
+    $DEBUG = 1;
     
     &$ref_to_debug_sub('DEBUG mode on');
 }
@@ -60,6 +62,7 @@ sub debug_off {
     if ($self->{ref_to_debug_sub}) {
         &{$self->{ref_to_debug_sub}}('DEBUG mode off');
         $self->{ref_to_debug_sub} = 0;
+        $DEBUG = 0;
     }
 }
 
@@ -67,8 +70,13 @@ sub debug_off {
 sub _debug {
     my ($self,$msg) = @_;
 
-    if ($self->{ref_to_debug_sub}) {
-        &{$self->{ref_to_debug_sub}}($msg);
+    if($DEBUG) {
+        if ($self->{ref_to_debug_sub}) {
+            &{$self->{ref_to_debug_sub}}($msg);
+        }
+        else {
+            print "DEBUG: $msg\n";
+        }
     }
 }
 
@@ -110,8 +118,7 @@ sub add_pod_content {
     my $parser = EBook::MOBI::Pod2Mhtml->new();
 
     # pass some settings
-    $parser->debug_on($self->{ref_to_debug_sub})
-        if ($self->{ref_to_debug_sub});
+    $parser->debug_on($self->{ref_to_debug_sub}) if ($DEBUG);
     $parser->pagemode($pagemode);
     $parser->head0_mode($head0_mode);
 
@@ -186,8 +193,7 @@ sub save {
     my ($self) = @_;
 
     my $mobi = EBook::MOBI::Mhtml2Mobi->new();
-    $mobi->debug_on($self->{ref_to_debug_sub})
-        if ($self->{ref_to_debug_sub});
+    $mobi->debug_on($self->{ref_to_debug_sub}) if ($DEBUG);
 
     $mobi->pack(    $self->{html_data},
                     $self->{filename},
@@ -326,7 +332,7 @@ Give a string which will appear in the meta data of the format. This will be use
 
 The book will be stored under the name and location you pass here. When calling the save() method the file will be created.
 
-If you don't use this method, the default name will be 'book.mobi'.
+If you don't use this method, the default name will be 'book'.
 
 =head2 set_encoding
 
@@ -364,7 +370,7 @@ Default is to not insert pagebreak.
 Pass any true value as the third argument to enable 'head0_mode'. The effect will be, that you are allowed to use a '=head0' command in your POD.
 
   $book->head0_mode(1);
-  $book->add_pod_content("=head0 Module EBook::MOBI
+  $book->add_pod_content('=head0 Module EBook::MOBI
   
   =head1 NAME
 
@@ -376,7 +382,7 @@ Pass any true value as the third argument to enable 'head0_mode'. The effect wil
 
   =head1 SYNOPSIS
 
-  =cut", 0, 1);
+  =cut', 0, 1);
 
 This feature is useful if you want to have the documentation of several modules in Perl in one eBook. You then can add a higher level of titles, so that the TOC does not only contain several NAME and SYNOPSIS entries.
 
