@@ -6,7 +6,7 @@ use warnings;
 use Pod::Parser;
 our @ISA = qw(Pod::Parser);
 
-our $VERSION = 0.2;
+our $VERSION = 0.41;
 
 use Text::Trim;
 use HTML::Entities;
@@ -151,7 +151,7 @@ sub command {
             # there where no items...
         }
         else {
-            croak 'POD parsing error. Undefined listcontext: '
+            carp 'POD parsing error. Undefined listcontext: '
                   . $parser->{+P . 'listcontext'};
         }
 

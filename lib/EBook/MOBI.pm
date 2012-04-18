@@ -3,7 +3,7 @@ package EBook::MOBI;
 use strict;
 use warnings;
 
-our $VERSION = 0.4;
+our $VERSION = 0.41;
 
 # needed CPAN stuff
 use IO::String;
@@ -136,6 +136,7 @@ sub add_pod_content {
     # we call the parser to parse, result will be in $buffer4html
     $parser->parse_from_filehandle($pod_handle, $buffer4html_handle);
     close $pod_handle;
+    unlink $f_name;
 
     $self->{html_data} .= $buffer4html;
 }
