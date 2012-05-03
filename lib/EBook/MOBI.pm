@@ -3,7 +3,7 @@ package EBook::MOBI;
 use strict;
 use warnings;
 
-our $VERSION = 0.41;
+our $VERSION = 0.42;
 
 # needed CPAN stuff
 use IO::String;
@@ -122,7 +122,7 @@ sub add_pod_content {
     # We do this trick so that we have UTF8
     # It seems like this is working after all...
     my ($fh,$f_name) = tempfile();
-    binmode $fh;
+    binmode $fh, ":encoding(" . $self->{encoding} . ")";
     print $fh $pod;
     close $fh;
     open my $pod_handle, "<:encoding($self->{encoding})", $f_name;
