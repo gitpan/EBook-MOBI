@@ -5,11 +5,8 @@ META.yml
 Makefile.PL
 README
 dist.ini
-example/List.mobi
 example/bigSimple.pl
-example/img/camel-mobi.jpg
 example/img/camel.jpg
-example/img/camel_big-mobi_resized.jpg
 example/img/camel_big.jpg
 example/list.pl
 example/simple.pl
