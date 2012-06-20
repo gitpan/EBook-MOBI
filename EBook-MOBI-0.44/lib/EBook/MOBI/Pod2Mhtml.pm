@@ -10,8 +10,6 @@ use Text::Trim;
 use HTML::Entities;
 use Carp;
 
-our $VERSION = 0.45;
-
 # This constants are used for internal replacement
 # See interior_sequence() and _html_enc() for usage
 use constant { GT  => '1_qpdhcn_thisStringShouldNeverOccurInInput',
