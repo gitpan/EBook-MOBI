@@ -58,7 +58,7 @@ $book->set_encoding(':encoding(UTF-8)');
 # fill the book with content
 $book->add_mhtml_content(" <h1>A Test Titlepage</h1><p>Very simple...</p>");
 $book->add_pagebreak();
-$book->add_toc_once();
+$book->add_toc_once( 'Inhaltsverzeichnis' );
 $book->add_pagebreak();
 $book->add_pod_content($pod, 'pagemode');
 

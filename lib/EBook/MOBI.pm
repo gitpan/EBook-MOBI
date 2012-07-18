@@ -3,7 +3,7 @@ package EBook::MOBI;
 use strict;
 use warnings;
 
-our $VERSION = 0.47;
+our $VERSION = 0.48;
 
 # needed CPAN stuff
 use IO::String;
@@ -18,6 +18,9 @@ sub new {
     my $self = shift;
     my $ref = { html_data => '',
                 html_toc  => '',
+                toc_label => 'Table of Contents',
+                toc_set   => 0,
+                toc_done  => 0,
 
                 filename  => 'book.mobi',
                 title     => 'This Book has no Title',
@@ -26,6 +29,8 @@ sub new {
                 encoding  => ':encoding(UTF-8)',
 
                 CONST     => '6_--TOC-_thisStringShouldNeverOccurInInput',
+
+                ref_to_debug_sub => 0,
             };
 
     bless($ref, $self);
@@ -36,6 +41,9 @@ sub reset {
     my $self = shift;
     $self->{html_data} = '',
     $self->{html_toc } = '',
+    $self->{toc_label} = 'Table of Contents',
+    $self->{toc_set  } = 0,
+    $self->{toc_done } = 0,
 
     $self->{filename } = 'book',
     $self->{title    } = 'This Book has no Title',
@@ -44,6 +52,8 @@ sub reset {
     $self->{encoding } = ':encoding(UTF-8)',
 
     $self->{CONST    } = '6_--TOC-_thisStringShouldNeverOccurInInput',
+
+    $self->{ref_to_debug_sub} = 0,
 }
 
 sub debug_on {
@@ -142,14 +152,15 @@ sub add_pod_content {
 }
 
 sub add_pagebreak {
-    my ($self, $html) = @_;
+    my ($self) = @_;
 
     $self->{html_data} .= '<mbp:pagebreak />' . "\n";
 }
 
 sub add_toc_once {
-    my ($self, $html) = @_;
+    my ($self, $label) = @_;
 
+    $self->{toc_label} = $label if $label;
     $self->{toc_set} = 1;
     $self->{html_data} .= $self->{CONST};
     # this newline is needed, otherwise the generation of the toc will
@@ -220,7 +231,7 @@ sub _generate_toc {
         }
     }
 
-    my $toc  = "<h1>Table of Contents</h1><!-- TOC start -->\n";
+    my $toc  = "<h1>$self->{toc_label}</h1><!-- TOC start -->\n";
        $toc .= "<p><ul>\n$self->{html_toc}<\/ul><\/p>\n";
 
     $self->{html_data} =~ s/$self->{CONST}/$toc/;
@@ -229,7 +240,7 @@ sub _generate_toc {
     $self->{html_data} = "<html>
 <head>
 <guide>
-<reference type=\"toc\" title=\"Table of Contents\" filepos=\"00000000\"/>
+<reference type=\"toc\" title=\"$self->{toc_label}\" filepos=\"00000000\"/>
 </guide>
 </head>
 <body>
@@ -255,7 +266,7 @@ sub _generate_toc {
             my $fill_pos = sprintf("%08d", $this_pos);
 
             $self->{html_data} =~
-            s/<reference type="toc" title="Table of Contents" filepos="00000000"\/>/<reference type="toc" title="Table of Contents" filepos="$fill_pos"\/>/;
+            s/<reference type="toc" title="$self->{toc_label}" filepos="00000000"\/>/<reference type="toc" title="$self->{toc_label}" filepos="$fill_pos"\/>/;
         }
         $chars += length($line) + 1;
     }
@@ -356,7 +367,7 @@ If you stick to the most basic HTML tags it should be perfect mhtml 'compatible'
        <p>Read my wisdome.</p>"
   );
 
-If you indent the 'h1' tag with any whitespace, it will not appear in the TOC. This may be usefull if you want to design a title page.
+If you indent the 'h1' tag with any whitespace, it will not appear in the TOC (only 'h1' tags directly starting and ending with a newline are marked for the TOC). This may be usefull if you want to design a title page.
 
 =head2 add_pod_content
 
@@ -414,10 +425,13 @@ Use this method to seperate content and give some structure to your book.
 
 =head2 add_toc_once
 
-Use this method to place a table of contents into your book. You will B<need to> call the make() method later, B<after> you added all your content to the book. This is, because we need all the content - to be able to calculate the
-references where the TOC is pointing to.
+Use this method to place a table of contents into your book. You will B<need to> call the make() method later, B<after> you added all your content to the book. This is, because we need all the content - to be able to calculate the references where the TOC is pointing to. Only 'h1' tags starting and ending with a newline char will enter the TOC. See  the docs for the method add_mhtml_content() for an example.
 
   $book->add_toc_once();
+
+By default, the toc is called 'Table of Contents'. You can change that label by passing it as a parameter:
+
+  $book->add_toc_once( 'Summary' );
 
 This method can only be called once. If you call it twice, the second call will not do anything.
 

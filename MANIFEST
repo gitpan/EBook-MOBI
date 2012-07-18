@@ -7,7 +7,6 @@ Makefile.PL
 README
 Simple.mobi
 dist.ini
-example/Simple.mobi
 example/bigSimple.pl
 example/img/camel-mobi.jpg
 example/img/camel.jpg
