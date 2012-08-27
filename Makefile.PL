@@ -9,7 +9,7 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "create an ebook in the MOBI format, out of POD formatted content.",
+  "ABSTRACT" => "create an ebook in the MOBI format.",
   "AUTHOR" => "Boris D\303\244ppen <boris_daeppen\@bluewin.ch>",
   "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
@@ -42,7 +42,7 @@ my %WriteMakefileArgs = (
     "Test::Pod::Coverage" => "1.08",
     "Text::Trim" => "1.02"
   },
-  "VERSION" => "0.491",
+  "VERSION" => "0.5",
   "test" => {
     "TESTS" => "t/*.t"
   }

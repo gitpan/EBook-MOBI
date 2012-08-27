@@ -3,14 +3,14 @@ package EBook::MOBI;
 use strict;
 use warnings;
 
-our $VERSION = 0.491;
+our $VERSION = 0.5;
 
 # needed CPAN stuff
 use IO::String;
 use File::Temp qw(tempfile);
 
 # needed local stuff
-use EBook::MOBI::Pod2Mhtml;
+use EBook::MOBI::Driver::POD;
 use EBook::MOBI::Mhtml2Mobi;
 
 # Constructor of this class
@@ -27,6 +27,7 @@ sub new {
                 author    => 'This Book has no Author',
 
                 encoding  => ':encoding(UTF-8)',
+           default_driver => 'EBook::MOBI::Driver::POD',
 
                 CONST     => '6_--TOC-_thisStringShouldNeverOccurInInput',
 
@@ -50,6 +51,7 @@ sub reset {
     $self->{author   } = 'This Book has no Author',
 
     $self->{encoding } = ':encoding(UTF-8)',
+$self->{default_driver}= 'EBook::MOBI::Driver::POD',
 
     $self->{CONST    } = '6_--TOC-_thisStringShouldNeverOccurInInput',
 
@@ -112,18 +114,32 @@ sub add_mhtml_content {
     $self->{html_data} .= $html;
 }
 
-sub add_pod_content {
-    my ($self, $pod, $pagemode, $head0_mode) = @_;
+sub add_content {
+    my $self = shift;
+    my %args = @_;
+    
+    my $data       = $args{data}       || 0;
+    my $pagemode   = $args{pagemode}   || 0;
+    my $head0_mode = $args{head0_mode} || 0;
+    my $driver     = $args{driver}     || $self->{default_driver};
+    my $driver_opt = $args{driver_options} || 0;
 
-    # With this parser we will create HTML out of POD.
-    # The HTML is specially prepared for the MOBI format
-    my $parser = EBook::MOBI::Pod2Mhtml->new();
+    # we load a plugin to convert the input to mobi format
+    my $parser;
+    (my $require_name = $driver . ".pm") =~ s{::}{/}g;
+    eval {
+        require $require_name;
+        $parser = $driver->new();
+    };
+    die "Problems with plugin $driver at $require_name: $@" if $@;
 
     # pass some settings
-    $parser->debug_on($self->{ref_to_debug_sub})
-        if ($self->{ref_to_debug_sub});
-    $parser->pagemode($pagemode);
-    $parser->head0_mode($head0_mode);
+    if ($self->{ref_to_debug_sub}) {
+        $parser->debug_on($self->{ref_to_debug_sub});
+    }
+    if ($driver_opt) {
+        $parser->set_options($driver_opt);
+    }
 
     # ok, now we prepare the parsing, unfortunately we have to do
     # some complicated magic with the string data...
@@ -133,22 +149,22 @@ sub add_pod_content {
     # It seems like this is working after all...
     my ($fh,$f_name) = tempfile();
     binmode $fh, $self->{encoding};
-    print $fh $pod;
+    print $fh $data;
     close $fh;
-    open my $pod_handle, "<$self->{encoding}", $f_name;
+    open my $data_handle, "<$self->{encoding}", $f_name;
 
-    # OUTPUT:
-    # We create this IO-object because Pod::Parser does not provide
-    # pure string-data as return of result data
-    my $buffer4html; # this variable will contain the result!!!
-    my $buffer4html_handle = IO::String->new($buffer4html);
-
-    # we call the parser to parse, result will be in $buffer4html
-    $parser->parse_from_filehandle($pod_handle, $buffer4html_handle);
-    close $pod_handle;
+    # and we have a file again...
+    my $input = '';
+    while (my $line = <$data_handle>) {
+        $input .= $line;
+    }
+    close $data_handle;
     unlink $f_name;
 
-    $self->{html_data} .= $buffer4html;
+    # we call the parser to parse, result will be in $buffer4html
+    my $output = $parser->parse($input);
+
+    $self->{html_data} .= $output;
 }
 
 sub add_pagebreak {
@@ -281,68 +297,104 @@ __END__
 
 =head1 NAME
 
-EBook::MOBI - create an ebook in the MOBI format, out of POD formatted content.
+EBook::MOBI - create an ebook in the MOBI format.
 
-You are at the right place here if you want to create an ebook in the so called MOBI format (somethimes also called PRC format or Mobipocket). You are especially at the right place if you have your books content available in the POD format. Because this is, what this code does best.
+You are at the right place here if you want to create an ebook in the so called MOBI format (somethimes also called PRC format or Mobipocket).
+
+=head1 VERSION
+
+B<Important:> This version (>= 0.5) has different API then older releases (<= 0.491).
+add_pod_content() is no more.
+Please take care while upgrading and change your code to the new way of adding content with the add_content() method.
 
 =head1 SYNOPSIS
 
-If you plan to create a typical ebook you probably will need all of the methods provided by this class. So it might be a good idea to read all the descriptions in the methods section, and also have a look at this example here:
+If you plan to create a typical ebook you probably will need most of the methods provided by this module. So it might be a good idea to read all the descriptions in the methods section, and also have a look at this example here.
 
-  # Create an object of a book
-  use EBook::MOBI;
-  my $book = EBook::MOBI->new();
+Because the input in this example is from the same file as the code, and this text-file is utf-8, we enable utf-8 and we will have no problems.
 
-  # give some meta information about this book
-  $book->set_filename('./data/my_ebook.mobi');
-  $book->set_title   ('Read my Wisdome');
-  $book->set_author  ('Bam Bam');
-  $book->set_encoding(':encoding(UTF-8)');
+ use utf8;
 
-  # lets create our own title page!
-  $book->add_mhtml_content(
-      " <h1>This is my Book</h1>
-       <p>Read my wisdome.</p>"
-  );
-  $book->add_pagebreak();
+Then we create an object and set some information about the book.
 
-  # insert a table of contents after the titlepage
-  $book->add_toc_once();
-  $book->add_pagebreak();
+ # Create an object of a book
+ use EBook::MOBI;
+ my $book = EBook::MOBI->new();
 
-  # add the books text, which is e.g. in the POD format
-  $book->add_pod_content($pod, 'pagemode');
+ # give some meta information about this book
+ $book->set_filename('./data/my_ebook.mobi');
+ $book->set_title   ('Read my Wisdome');
+ $book->set_author  ('Alfred Beispiel');
+ $book->set_encoding(':encoding(UTF-8)');
 
-  # prepare the book (e.g. calculate the references for the TOC)
-  $book->make();
+Input can be done in several ways.
+You can always work directly with the format itself.
+See L<EBook::MOBI::Converter> for more information about this format.
 
-  # let me see how this mobi-html looks like
-  $book->print_mhtml();
+ # lets create our own title page!
+ $book->add_mhtml_content(
+     " <h1>This is my Book</h1>
+      <p>Read my wisdome.</p>"
+ );
+ $book->add_pagebreak();
 
-  # ok, give me that mobi-book as a file!
-  $book->save();
+To help you with the format use L<EBook::MOBI::Converter>.
+The above would then look like this:
 
-  # done
+ my $c = EBook::MOBI::Converter->new();
+ $book->add_mhtml_content( $c->title('This is my Book', 1, 0) );
+ $book->add_mhtml_content( $c->paragraph('Read my wisdome')   );
+ $book->add_mhtml_content( $c->pagebreak()                    );
 
-=head1 METHODS
+At any point in the book you can insert a table of content.
+
+ # insert a table of contents after the titlepage
+ $book->add_toc_once();
+ $book->add_pagebreak();
+
+The preferred way for your normal input should be the add_content() method.
+It makes use of plugins, so you should make sure there is a plugin for your input markup.
+
+ my $POD_in = "=head1 Title\n\nSome text.\n\n";  
+
+ # add the books text, which is e.g. in the POD format
+ $book->add_content( data           => $POD_in,
+                     driver         => 'EBook::MOBI::Driver::POD',
+                     driver_options => { pagemode => 1},
+                   );
+
+After that, some small final steps are needed and the book is ready.
+
+ # prepare the book (e.g. calculate the references for the TOC)
+ $book->make();
+
+ # let me see how this mobi-format looks like
+ $book->print_mhtml();
+
+ # ok, give me that mobi-book as a file!
+ $book->save();
+
+ # done
+
+=head1 METHODS (set meta data)
 
 =head2 set_title
 
 Give a string which will appear in the meta data of the format. This will be used e.g. by ebook-readers to determine the books name.
 
-  $book->set_title('Read my Wisdome');
+ $book->set_title('Read my Wisdome');
 
 =head2 set_author
 
 Give a string which will appear in the meta data of the format. This will be used e.g. by ebook-readers to determine the books author.
 
-  $book->set_author('Bam Bam');
+ $book->set_author('Alfred Beispiel');
 
 =head2 set_filename
 
 The book will be stored under the name and location you pass here. When calling the save() method the file will be created.
 
-  $book->set_filename('./data/my_ebook.mobi');
+ $book->set_filename('./data/my_ebook.mobi');
 
 If you don't use this method, the default name will be 'book.mobi'.
 
@@ -351,95 +403,83 @@ If you don't use this method, the default name will be 'book.mobi'.
 If you don't set anything here, C<:encoding(UTF-8)> will be default.
 As far as I know, only CP1252 (Win Latin1) und UTF-8 are supported by popular readers.
 
-  $book->set_encoding(':encoding(UTF-8)');
+ $book->set_encoding(':encoding(UTF-8)');
 
 Please see L<http://perldoc.perl.org/functions/binmode.html> for the syntax of your encoding keyword.
 If you use use hardcoded strings in your program, C<use utf8;> should be helping.
+
+=head1 METHODS (adding content)
 
 =head2 add_mhtml_content
 
 'mhtml' stands for mobi-html, which means: it is actually HTML but some things are different. I invented this term myself, so it is probably not a good idea to search the web or ask other people about it. If you are looking for more information about this format you might search the web for 'mobipocket file format' or something similar.
 
-If you stick to the most basic HTML tags it should be perfect mhtml 'compatible'. This way you can add your own content directly. If this is to tricky, have a look at the add_pod_content() method.
+If you stick to the most basic HTML tags it should be perfect mhtml 'compatible'. This way you can add your own content directly. If this is to tricky, have a look at the add_content() method.
 
-  $book->add_mhtml_content(
-      " <h1>This is my Book</h1>
-       <p>Read my wisdome.</p>"
-  );
+ $book->add_mhtml_content(
+     " <h1>This is my Book</h1>
+      <p>Read my wisdome.</p>"
+ );
 
 If you indent the 'h1' tag with any whitespace, it will not appear in the TOC (only 'h1' tags directly starting and ending with a newline are marked for the TOC). This may be usefull if you want to design a title page.
 
-=head2 add_pod_content
+There is a module L<EBook::MOBI::Converter> which helps you in creating this format. See it's documentation for more information.
 
-Perls POD format is very simple to use. So it might be a good idea to write your content in POD. If you did so, you can use this method to put your content into the book. Your POD will automatically be parsed and transformed to what I call 'mhtml' format. This means, your POD content will just look great in the ebook.
+=head2 add_content
 
-  $book->add_pod_content($pod, 'pagemode', 'head0_mode');
+Use this method if you have your content in a specific markup format.
+See below for details to the arguments supported by this method.
 
-=head3 pagemode
+ $book->add_content( data           => $data_as_string,
+                     driver         => $driver_name,
+                     driver_options => {plugin_option => $value}
+                   );
 
-If you pass any true value as the second argument, every head1 chapter will end with a peagebreak. This mostly makes sence, so it is a good idea to use this feature.
+The method uses a plugin system to transform your format into an ebook.
+If you don't find a plugin for your markup please write one and release it under the namespace C<EBook::MOBI::Driver::$YourMarkup>.
 
-Default is to not insert pagebreak.
+Details for the options of this method:
 
-=head3 head0_mode
+=head3 data
 
-Pass any true value as the third argument to enable 'head0_mode'. The effect will be, that you are allowed to use a '=head0' command in your POD.
+A string, containing your text for the ebook.
 
-  my $pod = <<POD;
-  =head0 Module EBook::MOBI
-  
-  =head1 NAME
+=head3 driver
 
-  =head1 SYNOPSIS
+The name of the module which parses your data.
+If this value is not set, the default is L<EBook::MOBI::Driver::POD>.
+You are welcome to add your own driver for your markup of choice!
 
-  =head0 Module EBook::MOBI::Pod2Mhtml
+=head3 driver_options
 
-  =head1 NAME
-
-  =head1 SYNOPSIS
-
-  =cut
-  POD
-
-  $book->add_pod_content($pod, 0, 'head0_mode');
-
-This feature is useful if you want to have the documentation of several modules in Perl in one ebook. You then can add a higher level of titles, so that the TOC does not only contain several NAME and SYNOPSIS entries.
-
-Default is to ignore any '=head0' command.
-
-=head3 Special syntax for images
-
-POD does not support images, but you might want images in your ebook.
-
-If you want to add images you can use an unofficial '=image' syntax in your POD.
-
-  =image /path/to/image.jpg fig1: description which will be the caption.
-
-The image needs to exist at the path which you define here. When you call the save() method, those images will be read from this place and stored into the ebook-file.
+Pass a hash ref here, with options for the plugin.
+This options may be different for each plugin.
 
 =head2 add_pagebreak
 
 Use this method to seperate content and give some structure to your book.
 
-  $book->add_pagebreak();
+ $book->add_pagebreak();
 
 =head2 add_toc_once
 
-Use this method to place a table of contents into your book. You will B<need to> call the make() method later, B<after> you added all your content to the book. This is, because we need all the content - to be able to calculate the references where the TOC is pointing to. Only 'h1' tags starting and ending with a newline char will enter the TOC. See  the docs for the method add_mhtml_content() for an example.
+Use this method to place a table of contents into your book. You will B<need to> call the make() method later, B<after> you added all your content to the book. This is, because we need all the content - to be able to calculate the references where the TOC is pointing to. Only 'h1' tags starting and ending with a newline char will enter the TOC.
 
-  $book->add_toc_once();
+ $book->add_toc_once();
 
 By default, the toc is called 'Table of Contents'. You can change that label by passing it as a parameter:
 
-  $book->add_toc_once( 'Summary' );
+ $book->add_toc_once( 'Summary' );
 
 This method can only be called once. If you call it twice, the second call will not do anything.
 
+=head1 METHODS (finishing)
+
 =head2 make
 
-You need to call this one before saving, especially if you have used the add_toc_once() method. This will calculate the references, pointing from the TOC into the content.
+You only need to call this one before saving, if you have used the add_toc_once() method. This will calculate the references, pointing from the TOC into the content.
 
-  $book->make();
+ $book->make();
 
 =head2 print_mhtml
 
@@ -447,43 +487,61 @@ If you are curious how the mobi-specific HTML looks like, take a look!
 
 If you call the method it will print to standard output. You can change this behaviour by passing any true argument. The content will then be returned, so that you can store it in a variable.
 
-  # print to stdout
-  $book->print_mhtml();
-  
-  # or get the result into a variable
-  $mhtml_data = $book->print_mhtml(1);
+ # print to stdout
+ $book->print_mhtml();
+ 
+ # or get the result into a variable
+ $mhtml_data = $book->print_mhtml('result to var');
 
 =head2 save
 
 Put the whole thing together as an ebook. This will create a file, with the name and location you gave with set_filename().
 
-  $book->save();
+ $book->save();
 
-In this process it will also read images and store them into the ebook. So it is important, that the images are readable at the path you provided in your POD or mhtml syntax.
+In this process it will also read images and store them into the ebook. So it is important, that the images are readable at the path you provided before.
+
+=head1 METHODS (debugging)
 
 =head2 reset
 
 Reset the object, so that all the content is purged. Helpful if you like to make a new book, but are to lazy to create a new object. (e.g. for testing)
 
-  $book->reset();
+ $book->reset();
 
 =head2 debug_on
 
-You can just ignore this method if you are not interested in debuging!
+You can just ignore this method if you are not interested in debugging!
 Pass a reference to a debug subroutine and enable debug messages.
 
-  sub debug {
-      my ($package, $filename, $line) = caller;
-      print "$package\t$_[0]\n";
-  }
+ sub debug {
+     my ($package, $filename, $line) = caller;
+     print "$package\t$_[0]\n";
+ }
 
-  $book->debug_on(\&debug);
+ $book->debug_on(\&debug);
+
+Or shorter:
+
+ $book->debug_on(sub { print @_; print "\n" });
 
 =head2 debug_off
 
 Stop debug messages and erease the reference to the subroutine.
 
-  $book->debug_off();
+ $book->debug_off();
+
+=head1 PLUGINS / DRIVERS
+
+=head2 POD
+
+L<EBook::MOBI::Driver::POD> is a plugin for Perls markup language POD.
+Please see its docs for more information and options.
+
+=head2 Example
+
+L<EBook::MOBI::Driver::Example> is an example implementation of a simple plugin. It is only useful for plugin writers, as an example.
+Please see its docs for more information and options.
 
 =head1 SEE ALSO
 
@@ -491,40 +549,58 @@ Stop debug messages and erease the reference to the subroutine.
 
 =item * L<Github|https://github.com/borisdaeppen/EBook--MOBI> for participating and also for L<bugreports|https://github.com/borisdaeppen/EBook--MOBI/issues>.
 
-=item * L<EBook::MOBI::Pod2Mhtml> - see how the POD becomes MHTML.
+=item * L<EBook::MOBI> - create an ebook in the MOBI format.
 
-=item * L<EBook::MOBI::Mhtml2Mobi> - look up what I mean by saying MHTML, and how the code from MobiPerl is doing it's job.
+=item * L<EBook::MOBI::Driver::Example> - Example plugin implementation.
 
-=item * L<EBook::MOBI::Picture> - see how bad I manage your images.
+=item * L<EBook::MOBI::Driver::POD> - Create HTML, flavoured for the MOBI format, out of POD.
+
+=item * L<EBook::MOBI::Driver> - Interface for plugins.
+
+=item * L<EBook::MOBI::Converter> - Tool to create MHTML.
+
+=item * L<EBook::MOBI::Picture> - Make sure that pictures cope with the MOBI standards.
+
+=item * L<EBook::MOBI::Mhtml2Mobi> - Create a Mobi ebook by packing MOBI-ready HTML.
 
 =item * Everything in the namespace C<EBook::MOBI::MobiPerl> is coming from MobiPerl. For information about this code, please visit L<https://dev.mobileread.com/trac/mobiperl>
 
 =back
 
-=head1 COPYRIGHT & LICENSE
+=head1 THANKS TO
+
+=over
+
+=item * Renée Bäcker and L<Perl-Services.de|http://www.perl-services.de/> for the idea, patches and making this module possible.
+
+=item * L<Perl-Magazin|http://perl-magazin.de/> for publishing an article in autumn 2012.
+
+=item * L<Linux-Magazin|http://shop.linuxnewmedia.de/eh20194.html> for mentioning the module in the Perl-Snapshots. The article is also available L<online|http://www.linux-magazin.de/content/view/full/69651> and as L<podcast|http://www.linux-magazin.de/plus/2012/08/Perl-Snapshot-Linux-Magazin-2012-08>.
+
+=item * Tompe for developing MobiPerl.
+
+=back
+
+=head1 CONTRIBUTORS
+
+=over
+
+=item * L<GARU|https://metacpan.org/author/GARU>
+
+=item * L<RENEEB|https://metacpan.org/author/RENEEB>
+
+=back
+
+=head1 COPYRIGHTRenee & LICENSE
 
 Copyright 2012 Boris Däppen, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under the same terms of Artistic License 2.0.
 
+
 =head1 AUTHOR
 
 Boris Däppen E<lt>boris_daeppen@bluewin.chE<gt>
 
-=head1 THANKS TO
-
-=over
-
-=item * Renée Bäcker and L<Perl-Services.de|http://www.perl-services.de/> for the idea and making this module possible.
-
-=item * L<Perl-Magazin|http://perl-magazin.de/> for publishing an article in autumn 2012.
-
-=item * L<Linux-Magazin|http://shop.linuxnewmedia.de/eh20194.html> for the same thing, the article is also available L<online|http://www.linux-magazin.de/content/view/full/69651> and as L<podcast|http://www.linux-magazin.de/plus/2012/08/Perl-Snapshot-Linux-Magazin-2012-08>.
-
-=item * Tompe for developing MobiPerl.
-
-=item * L<Garu|https://metacpan.org/author/GARU> for a helpfull patch, allowing to set a name for the TOC.
-
-=back
-
 =cut
+

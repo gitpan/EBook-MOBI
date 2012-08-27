@@ -1,4 +1,5 @@
 Changes
+Doku.html
 LICENSE
 MANIFEST
 META.yml
@@ -7,9 +8,14 @@ Makefile.PL
 README
 dist.ini
 example/bigSimple.pl
+example/howto_write_a_plugin.pl
 example/list.pl
 example/simple.pl
 lib/EBook/MOBI.pm
+lib/EBook/MOBI/Converter.pm
+lib/EBook/MOBI/Driver.pm
+lib/EBook/MOBI/Driver/Example.pm
+lib/EBook/MOBI/Driver/POD.pm
 lib/EBook/MOBI/Mhtml2Mobi.pm
 lib/EBook/MOBI/MobiPerl/EXTH.pm
 lib/EBook/MOBI/MobiPerl/MobiHeader.pm
@@ -24,11 +30,13 @@ lib/EBook/MOBI/MobiPerl/Palm/StdAppInfo.pm
 lib/EBook/MOBI/MobiPerl/Palm/ToDo.pm
 lib/EBook/MOBI/MobiPerl/Util.pm
 lib/EBook/MOBI/Picture.pm
-lib/EBook/MOBI/Pod2Mhtml.pm
 t/20_mobi.t
-t/21_pod2html.t
 t/22_html2mobi.t
 t/23_picture.t
+t/24_Converter.t
+t/25_driver_pod.t
+t/26_driver_example.t
+t/30_different_drivers.t
 t/95_pm_have_version.t
 t/96_pod_coverage.t
 t/97_pod.t

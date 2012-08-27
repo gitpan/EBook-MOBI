@@ -1,14 +1,17 @@
-package EBook::MOBI::Pod2Mhtml;
+package EBook::MOBI::Driver::POD;
 
 use strict;
 use warnings;
 
 use Pod::Parser;
-our @ISA = qw(Pod::Parser);
+use EBook::MOBI::Driver;
+our @ISA = qw(Pod::Parser EBook::MOBI::Driver);
 
 use Text::Trim;
 use HTML::Entities;
 use Carp;
+use EBook::MOBI::Converter;
+use IO::String;
 
 our $VERSION = 0.45;
 
@@ -30,38 +33,25 @@ use constant { GT  => '1_qpdhcn_thisStringShouldNeverOccurInInput',
 use constant { P   => 'EBook_MOBI_Pod2Mhtml_' };
 
 # Overwrite sub of Pod::Parser
-# At start of POD we print a html BODY tag
 sub begin_input {
     my $parser = shift;
     my $out_fh = $parser->output_handle();       # handle for parsing output
 
-    $parser->_debug('found POD, parsing...');
+    $parser->{+P . 'toMobi'} = EBook::MOBI::Converter->new();
+
+    $parser->debug_msg('found POD, parsing...');
 
     # make sure that this variable is set to 0 at beginning
     $parser->{+P . 'listcontext'} = 0;
     $parser->{+P . 'listjustwentback'} = 0;
-
-    if (exists $parser->{+P . 'body'} and $parser->{+P . 'body'}) {
-        print $out_fh "<body>\n";
-    }
 }
 
 # Overwrite sub of Pod::Parser
-# At end of POD we print a html /BODY tag
 sub end_input {
     my $parser = shift;
     my $out_fh = $parser->output_handle();
 
-    $parser->_debug('...end of POD reached');
-
-    # at the end of file we should not be in listcontext anymore
-    #if($parser->{+P . 'listcontext'}) {
-        #croak "POD parsing error. Did you forget '=back' at end of list?";
-    #}
-
-    if (exists $parser->{+P . 'body'} and $parser->{+P . 'body'}) {
-        print $out_fh "</body>\n";
-    }
+    $parser->debug_msg('...end of POD reached');
 }
 
 # Overwrite sub of Pod::Parser
@@ -85,21 +75,13 @@ sub command {
             # description, not in the path!
             $img_desc = _html_enc($img_desc);
 
-            # We count the pictures, so that each has a number
-            $parser->{'EBook::MOBI::Pod2Mhtml::img_count'} ++;
-
             # We print out an html image tag.
             # e.g.: <img src="/home/user/picture.jpg" recindex="1">
             # recindex is MOBI specific, its the number of the picture,
             # pointing into the picture records of the Mobi-format
-            print $out_fh '<img src="' . $img_path . '"'
-                        . ' recindex="' . $parser-> {
-                                'EBook::MOBI::Pod2Mhtml::img_count'
-                            }
-                        .'" >'
-                        . "\n";
-            # Then we print out the image description
-            print $out_fh '<p>' . $img_desc . '</p>' . "\n";
+            print $out_fh
+                $parser->{+P . 'toMobi'}
+                    ->image($img_path, $img_desc);
         }
     }
     # Lists are a bit complex. The commands 'over', 'back' and 'item'
@@ -188,29 +170,29 @@ sub command {
         if ($command eq 'head0') {
             # head0 gets only printed if the option is set!
             # (head0 is not official POD standard)
-            if (exists $parser->{+P . 'head0_mode'}
-              and $parser->{+P . 'head0_mode'}) {
+            if ($parser->head0_mode()) {
                 # before every head1 we insert a "mobi-pagebreak"
                 # but not before the first one!
                 if (exists $parser->{+P . 'firstH1passed'}
                 and exists $parser->{+P . 'pages'}
                 and        $parser->{+P . 'pages'}
                 ) {
-                    print $out_fh '<mbp:pagebreak />'       . "\n";
+                    print $out_fh
+                        $parser->{+P . 'toMobi'}->pagebreak();
                 }
                 else {
                     $parser->{+P . 'firstH1passed'} = 1;
                 }
 
-                print $out_fh '<h1>' . $expansion . '</h1>' . "\n"
+                print $out_fh
+                    $parser->{+P . 'toMobi'}->title($expansion, 1);
             }
         }
         elsif ($command eq 'head1') {
             # we need to check to which level we translate the headings...
-            if (exists $parser->{+P . 'head0_mode'}
-                and $parser->{+P . 'head0_mode'}
-                ) {
-                print $out_fh '<h2>' . $expansion . '</h2>' . "\n"
+            if ($parser->head0_mode()) {
+                print $out_fh
+                    $parser->{+P . 'toMobi'}->title($expansion, 2);
             }
             else {
                 # before every head1 we insert a "mobi-pagebreak"
@@ -219,49 +201,51 @@ sub command {
                 and exists $parser->{+P . 'pages'}
                 and        $parser->{+P . 'pages'}
                 ) {
-                    print $out_fh '<mbp:pagebreak />'       . "\n";
+                    print $out_fh
+                        $parser->{+P . 'toMobi'}->pagebreak();
                 }
                 else {
                     $parser->{+P . 'firstH1passed'} = 1;
                 }
 
-                print $out_fh '<h1>' . $expansion . '</h1>' . "\n"
+                print $out_fh
+                    $parser->{+P . 'toMobi'}->title($expansion, 1);
             }
         }
         elsif ($command eq 'head2') {
             # we need to check to which level we translate the headings...
-            if (exists $parser->{+P . 'head0_mode'}
-                and $parser->{+P . 'head0_mode'}
-                ) {
-                print $out_fh '<h3>' . $expansion . '</h3>' . "\n"
+            if ($parser->head0_mode()) {
+                print $out_fh
+                    $parser->{+P . 'toMobi'}->title($expansion, 3);
             }
             else {
-                print $out_fh '<h2>' . $expansion . '</h2>' . "\n"
+                print $out_fh
+                    $parser->{+P . 'toMobi'}->title($expansion, 2);
             }
         }
         elsif ($command eq 'head3') {
             # we need to check to which level we translate the headings...
-            if (exists $parser->{+P . 'head0_mode'}
-                and $parser->{+P . 'head0_mode'}
-                ) {
-                print $out_fh '<h4>' . $expansion . '</h4>' . "\n"
+            if ($parser->head0_mode()) {
+                print $out_fh
+                    $parser->{+P . 'toMobi'}->title($expansion, 4);
             }
             else {
-                print $out_fh '<h3>' . $expansion . '</h3>' . "\n"
+                print $out_fh
+                    $parser->{+P . 'toMobi'}->title($expansion, 3);
             }
         }
         elsif ($command eq 'head4') {
             # we need to check to which level we translate the headings...
-            if (exists $parser->{+P . 'head0_mode'}
-                and $parser->{+P . 'head0_mode'}
-                ) {
-                print $out_fh '<h5>' . $expansion . '</h5>' . "\n"
+            if ($parser->head0_mode()) {
+                print $out_fh
+                    $parser->{+P . 'toMobi'}->title($expansion, 5);
             }
             else {
-                print $out_fh '<h4>' . $expansion . '</h4>' . "\n"
+                print $out_fh
+                    $parser->{+P . 'toMobi'}->title($expansion, 4);
             }
         }
-        # ITEM: the lists items
+        # ITEM: lists items
         elsif ($command eq 'item') {
 
             # If we are still in listcontext 'begin' this means that this is
@@ -270,10 +254,6 @@ sub command {
             my $lvl = $parser->{+P . 'listlvl'};
 
             $parser->{+P . 'list'}->[$lvl]->{items}++;
-
-            #print "DEBUG: item lvl $lvl no." .
-                #$parser->{+P . 'list'}->[$lvl]->{items}
-                #. "\n";
 
             if ($parser->{+P . 'list'}->[$lvl]->{items} == 1){
 
@@ -397,7 +377,7 @@ sub verbatim {
     trim $expansion;
 
     # ok, we are done and print out the result
-    print $out_fh '<code>' . $expansion . '</code>' . "\n";
+    print $out_fh "<code>$expansion</code>\n";
 }
 
 # Overwrite sub of Pod::Parser
@@ -586,47 +566,56 @@ sub interior_sequence {
     return $arg;
 }
 
-sub html_body {
-    my ($self, $boolean) = @_;
+sub parse {
+    my ($parser, $input) = @_;
 
-    $self->{+P . 'body'} = $boolean;
-}
+    # INPUT:
+    my $input_fh = IO::String->new($input);
 
-sub pagemode {
-    my ($self, $boolean) = @_;
+    # OUTPUT:
+    # We create this IO-object because Pod::Parser does not provide
+    # pure string-data as return of result data
+    my $buffer4html; # this variable will contain the result!!!
+    my $buffer4html_handle = IO::String->new($buffer4html);
 
-    $self->{+P . 'pages'} = $boolean;
-}
+    # we call the parser to parse, result will be in $buffer4html
+    $parser->parse_from_filehandle($input_fh, $buffer4html_handle);
 
-sub head0_mode {
-    my ($self, $boolean) = @_;
+    return $buffer4html;
+};
 
-    $self->{+P . 'head0_mode'} = $boolean;
-}
+sub set_options {
+    my $self = shift;
+    my $args = shift;
 
-sub debug_on {
-    my ($self, $ref_to_debug_sub) = @_; 
-
-    $self->{ref_to_debug_sub} = $ref_to_debug_sub;
-    
-    &$ref_to_debug_sub('DEBUG mode on');
-}
-
-sub debug_off {
-    my ($self) = @_; 
-
-    if ($self->{ref_to_debug_sub}) {
-        &{$self->{ref_to_debug_sub}}('DEBUG mode off');
-        $self->{ref_to_debug_sub} = 0;
+    if (ref($args) eq "HASH") {
+        $self->head0_mode($args->{head0_mode}) if (exists $args->{head0_mode});
+        $self->pagemode  ($args->{pagemode})   if (exists $args->{pagemode});
+    }
+    else {
+        $self->debug_msg('Plugin options are not in a HASH');
     }
 }
 
-# Internal debug method
-sub _debug {
-    my ($self,$msg) = @_; 
+sub pagemode {
+    my ($self, $boolean) = @_; 
 
-    if ($self->{ref_to_debug_sub}) {
-        &{$self->{ref_to_debug_sub}}($msg);
+    if (@_ > 1) {
+        $self->{+P . 'pages'} = $boolean;
+    }   
+    else {
+        return $self->{+P . 'pages'};
+    }   
+}
+
+sub head0_mode {
+    my ($self, $boolean) = @_; 
+
+    if (@_ > 1) {
+        $self->{+P . 'head0_mode'} = $boolean;
+    }   
+    else {
+        return $self->{+P . 'head0_mode'};
     }   
 }
 
@@ -654,7 +643,7 @@ sub _html_enc {
     return $string;
 }
 
-# replaces whitespace with html entitie
+## replaces whitespace with html entitie
 sub _nbsp {
     my $string = shift;
 
@@ -671,48 +660,67 @@ __END__
 
 =head1 NAME
 
-EBook::MOBI::Pod2Mhtml - Create HTML, flavoured for the MOBI format, out of POD.
+EBook::MOBI::Driver::POD - Create HTML, flavoured for the MOBI format, out of POD.
 
 This module extends L<Pod::Parser> for parsing capabilities. The module L<HTML::Entities> is used to translate chars to HTML entities.
 
-=head1 SYNOPSIS
+=head1 SYNOPSIS (for users)
 
-  use EBook::MOBI::Pod2Mhtml;
-  my $p2h = new EBook::MOBI::Pod2Mhtml;
+The plugin is called like this while using C<EBook::MOBI>:
 
-  # $pod_h and $html_out_h are file handles
-  # or IO::String objects
-  $p2h->parse_from_filehandle($pod_h, $html_out_h);
+ use EBook::MOBI;
+ my $book = EBook::MOBI->new();
 
-  # result is now in $html_out_h
+ my $POD_in = <<END;
+ =head1 SOME POD
+
+ Just an example.
+
+ END
+
+ $book->add_content( data           => $POD_in,
+                     driver         => 'EBook::MOBI::Driver::POD',
+                     driver_options => { pagemode => 1, head0_mode => 0 }
+                   );
+
+
+=head1 SYNOPSIS (for developers)
+
+This module is a plugin for L<EBook::MOBI>.
+You probably don't need to access this module directly, unless you are a developer for C<EBook::MOBI>.
+
+ use EBook::MOBI::Driver::POD;
+ my $plugin = new EBook::MOBI::Driver::POD;
+
+ my $mobi_format = $plugin->parse($pod);
 
 =head1 METHODS
 
-=head2 parse_from_filehandle
+=head2 parse
 
-This is the method you need to call, if you want this module to be of any help for you. It will take your data in the POD format and return it in special flavoured HTML, which can be then further used for the MOBI format.
+This is the method each plugin should provide!
+It takes the input format as a string and returns MHTML.
 
-Hand over two file handles or Objects of L<IO::String>. The first handle points to your POD, the second waits to receive the result.
+=head1 OPTIONS (POD plugin specific)
 
-  # $pod_h and $html_out_h are file handles
-  # or IO::String objects
-  $p2h->parse_from_filehandle($pod_h, $html_out_h);
+=head2 set_options
 
-  # result is now in $html_out_h
+This method is provided by all plugins.
+This module supports the following options:
 
-=head2 pagemode
+ $plugin->set_options(pagemode => 1, head0_mode => 1);
 
-Pass any true value to enable 'pagemode'. The effect will be, that before every - but the first - '=head1' there will be a peagebreak inserted. This means: The resulting eBook will start each head1 chapter at a new page.
+See description below for more details of the options.
 
-  $p2h->pagemode(1);
+=head3 pagemode
+
+Pass any true value to enable C<pagemode>. The effect will be, that before every - but the first - title on highest level there will be a pagebreak inserted. This means: The resulting ebook will start each C<h1> chapter at a new page.
 
 Default is to not add any pagebreak.
 
-=head2 head0_mode
+=head3 head0_mode
 
-Pass any true value to enable 'head0_mode'. The effect will be, that you are allowed to use a '=head0' command in your POD.
-
-  $p2h->head0_mode(1);
+Pass any true value to enable C<head0_mode>. The effect will be, that you are allowed to use a C<=head0> command in your POD.
 
 Pod can now look like this:
 
@@ -722,7 +730,7 @@ Pod can now look like this:
 
   =head1 SYNOPSIS
 
-  =head0 Module EBook::MOBI::Pod2Mhtml
+  =head0 Module EBook::MOBI::Converter
 
   =head1 NAME
 
@@ -730,57 +738,20 @@ Pod can now look like this:
 
   =cut
 
-This feature is useful if you want to have the documentation of several modules in Perl in one eBook. You then can add a higher level of titles, so that the TOC does not only contain several NAME and SYNOPSIS entries.
+This feature is useful if you want to have the documentation of several modules in Perl in one ebook. You then can add a higher level of titles, so that the TOC does not only contain several NAME and SYNOPSIS entries.
 
-Default is to ignore any '=head0' command.
+Default is to ignore any C<=head0> command.
 
-=head2 html_body
+=head1 SPECIAL SYNTAX FOR IMAGES
 
-Pass any true value to enable 'html_body'. If set, parsed content will be encapsulated in a HTML body tag. You may want this if you parse all data at once. But if there is more to add, you should not use this mode, you then will just get HTML markup which is not encapsulated in a body tag.
+POD does not support images.
+However you can add images with some special markup.
 
-  $p2h->html_body(1);
-
-Default is to not encapsulate in a body tag.
-
-=head2 debug_on
-
-You can just ignore this method if you are not interested in debuging!
-
-Pass a reference to a debug subroutine and enable debug messages.
-
-=head2 debug_off
-
-Stop debug messages and erease the reference to the subroutine.
-
-=head2 INHERITED INTERNAL METHODS
-
-=head3 begin_input
-
-Inherited from L<Pod::Parser>. Gets called when POD-input starts.
-
-=head3 command
-
-Inherited from L<Pod::Parser>. Gets called when a command is found.
-
-=head3 end_input
-
-Inherited from L<Pod::Parser>. Gets called when POD-input ends.
-
-=head3 interior_sequence
-
-Inherited from L<Pod::Parser>. Gets called for inline replacements..
-
-=head3 textblock
-
-Inherited from L<Pod::Parser>. Gets called for text sections.
-
-=head3 verbatim
-
-Inherited from L<Pod::Parser>. Gets called for code sections..
+ =image /path/to/image.jpg And some description here.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2011 Boris Däppen, all rights reserved.
+Copyright 2012 Boris Däppen, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under the same terms of Artistic License 2.0.
 
