@@ -3,7 +3,7 @@ package EBook::MOBI;
 use strict;
 use warnings;
 
-our $VERSION = 0.5;
+our $VERSION = 0.51;
 
 # needed CPAN stuff
 use IO::String;
@@ -591,7 +591,7 @@ Please see its docs for more information and options.
 
 =back
 
-=head1 COPYRIGHTRenee & LICENSE
+=head1 COPYRIGHT & LICENSE
 
 Copyright 2012 Boris Däppen, all rights reserved.
 
