@@ -3,7 +3,7 @@ package EBook::MOBI;
 use strict;
 use warnings;
 
-our $VERSION = 0.51;
+our $VERSION = 0.52;
 
 # needed CPAN stuff
 use IO::String;
@@ -310,6 +310,20 @@ Please take care while upgrading and change your code to the new way of adding c
 =head1 SYNOPSIS
 
 If you plan to create a typical ebook you probably will need most of the methods provided by this module. So it might be a good idea to read all the descriptions in the methods section, and also have a look at this example here.
+
+=head2 Minimalistic Example
+
+Paste and run.
+
+ use EBook::MOBI;
+ my $book = EBook::MOBI->new();
+ $book->add_mhtml_content("hello world");
+ $book->make();
+ $book->save();
+
+You should then find a file C<book.mobi> in your current directory.
+
+=head2 Detailed Example
 
 Because the input in this example is from the same file as the code, and this text-file is utf-8, we enable utf-8 and we will have no problems.
 
