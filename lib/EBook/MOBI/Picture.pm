@@ -1,6 +1,6 @@
 package EBook::MOBI::Picture;
 
-our $VERSION = '0.52'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
+our $VERSION = '0.53'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
 
 use strict;
 use warnings;

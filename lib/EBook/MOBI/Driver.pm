@@ -1,11 +1,9 @@
 package EBook::MOBI::Driver;
 
-our $VERSION = '0.52'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
+our $VERSION = '0.53'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
 
 use strict;
 use warnings;
-
-use HTML::Entities;
 
 # This constants are used for internal replacement
 # See interior_sequence() and _html_enc() for usage
