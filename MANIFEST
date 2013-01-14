@@ -1,12 +1,9 @@
-BigSimple.mobi
 Changes
-Doku.html
 LICENSE
 MANIFEST
 META.yml
 Makefile.PL
 README
-Simple.mobi
 dist.ini
 example/bigSimple.pl
 example/howto_write_a_plugin.pl
@@ -30,10 +27,8 @@ lib/EBook/MOBI/MobiPerl/Palm/Raw.pm
 lib/EBook/MOBI/MobiPerl/Palm/StdAppInfo.pm
 lib/EBook/MOBI/MobiPerl/Palm/ToDo.pm
 lib/EBook/MOBI/MobiPerl/Util.pm
-lib/EBook/MOBI/Picture.pm
 t/20_mobi.t
 t/22_html2mobi.t
-t/23_picture.t
 t/24_Converter.t
 t/25_driver_pod.t
 t/26_driver_example.t

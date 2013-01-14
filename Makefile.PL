@@ -33,7 +33,7 @@ my %WriteMakefileArgs = (
     "HTML::TreeBuilder" => "3.23",
     "IO::String" => "1.08",
     "Image::BMP" => "1.01",
-    "Image::Resize" => "0.5",
+    "Image::Imlib2" => 0,
     "Image::Size" => "3.221",
     "Pod::Coverage" => "0.21",
     "Pod::Parser" => "1.37",
@@ -42,7 +42,7 @@ my %WriteMakefileArgs = (
     "Test::Pod::Coverage" => "1.08",
     "Text::Trim" => "1.02"
   },
-  "VERSION" => "0.55",
+  "VERSION" => "0.56",
   "test" => {
     "TESTS" => "t/*.t"
   }
