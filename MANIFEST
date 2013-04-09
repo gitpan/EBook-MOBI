@@ -33,6 +33,4 @@ t/24_Converter.t
 t/25_driver_pod.t
 t/26_driver_example.t
 t/30_different_drivers.t
-t/95_pm_have_version.t
-t/96_pod_coverage.t
-t/97_pod.t
+test.pod
