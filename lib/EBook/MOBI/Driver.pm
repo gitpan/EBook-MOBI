@@ -1,6 +1,6 @@
 package EBook::MOBI::Driver;
 
-our $VERSION = '0.581'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
+our $VERSION = '0.59'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
 
 use strict;
 use warnings;
@@ -138,7 +138,7 @@ Takes a hash ref with arguments.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2012 Boris Däppen, all rights reserved.
+Copyright 2012, 2013 Boris Däppen, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under the same terms of Artistic License 2.0.
 
