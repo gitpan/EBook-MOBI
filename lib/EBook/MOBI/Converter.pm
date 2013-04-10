@@ -1,6 +1,6 @@
 package EBook::MOBI::Converter;
 
-our $VERSION = '0.59'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
+our $VERSION = '0.6'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
 
 use strict;
 use warnings;
