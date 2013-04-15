@@ -1,6 +1,6 @@
 package EBook::MOBI::Driver::Example;
 
-our $VERSION = '0.6'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
+our $VERSION = '0.61'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
 
 use feature 'switch';
 
@@ -151,7 +151,7 @@ This program is free software; you can redistribute it and/or modify it under th
 
 =head1 AUTHOR
 
-Boris Däppen E<lt>boris_daeppen@bluewin.chE<gt>
+Boris Däppen E<lt>bdaeppen.perl@gmail.comE<gt>
 
 =cut
 

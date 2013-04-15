@@ -1,6 +1,6 @@
 package EBook::MOBI::Mhtml2Mobi;
 
-our $VERSION = '0.6'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
+our $VERSION = '0.61'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
 
 # This file contains some example code, borrowed from MobiPerl.
 # The code comes from the html2mobi file from MobiPerl.
@@ -326,6 +326,6 @@ You should have received a copy of the GNU General Public License along with thi
 
 =head1 AUTHOR
 
-Boris Däppen E<lt>boris_daeppen@bluewin.chE<gt>
+Boris Däppen E<lt>bdaeppen.perl@gmail.comE<gt>
 
 =cut
