@@ -1,6 +1,6 @@
 package EBook::MOBI::Driver::Example;
 
-our $VERSION = '0.59'; # TRIAL VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
+our $VERSION = '0.61'; # TRIAL VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
 
 use feature 'switch';
 
@@ -145,7 +145,7 @@ You can use the debug methods from this module for example.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2012 Boris Däppen, all rights reserved.
+Copyright 2012, 2013 Boris Däppen, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under the same terms of Artistic License 2.0.
 

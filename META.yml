@@ -1,8 +1,9 @@
 ---
 abstract: 'create an ebook in the MOBI format.'
 author:
-  - 'Boris Däppen <boris_daeppen@bluewin.ch>'
+  - 'Boris Däppen <bdaeppen.perl@gmail.com>'
 build_requires:
+  File::Slurp: 0
   Test::More: 0
   utf8: 0
 configure_requires:
@@ -34,4 +35,4 @@ requires:
   strict: 0
   vars: 0
   warnings: 0
-version: 0.59
+version: 0.61

@@ -10,8 +10,9 @@ use ExtUtils::MakeMaker 6.30;
 
 my %WriteMakefileArgs = (
   "ABSTRACT" => "create an ebook in the MOBI format.",
-  "AUTHOR" => "Boris D\303\244ppen <boris_daeppen\@bluewin.ch>",
+  "AUTHOR" => "Boris D\303\244ppen <bdaeppen.perl\@gmail.com>",
   "BUILD_REQUIRES" => {
+    "File::Slurp" => 0,
     "Test::More" => 0,
     "utf8" => 0
   },
@@ -43,7 +44,7 @@ my %WriteMakefileArgs = (
     "vars" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.59",
+  "VERSION" => "0.61",
   "test" => {
     "TESTS" => "t/*.t"
   }
