@@ -5,12 +5,10 @@ META.yml
 Makefile.PL
 README
 dist.ini
-examples/backslashQ.pl
-examples/backslashQ.pod
-examples/bigSimple.pl
-examples/howto_write_a_plugin.pl
-examples/list.pl
-examples/simple.pl
+example/bigSimple.pl
+example/howto_write_a_plugin.pl
+example/list.pl
+example/simple.pl
 lib/EBook/MOBI.pm
 lib/EBook/MOBI/Converter.pm
 lib/EBook/MOBI/Driver.pm
@@ -35,6 +33,6 @@ t/24_Converter.t
 t/25_driver_pod.t
 t/26_driver_example.t
 t/30_different_drivers.t
-t/40_special_chars.t
-t/backslashQ.pod
-t/backslashQ_pod.html
+t/95_pm_have_version.t
+t/96_pod_coverage.t
+t/97_pod.t

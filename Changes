@@ -1,20 +1,8 @@
 Changes for EBook::MOBI
 
-0.61 2013-04-15
+0.59 2013-06-10
 
-    - Add File::Slurp to prereqs in dist.ini (thx CpanTesters once again)
-    - Update email address of author in POD
-
-0.60 2013-04-10
-
-    - Fix messed up build with dzil
-
-0.59 2013-04-10
-
-    - Remove all POD and VERSION tests from release packaging.
-    - Allow special chars (regex) in TOC (thx RENEEB)
-    - Minor POD stuff (update license year)
-    - Change directory ./example to ./examples
+    - Detect Prereqs automatically
 
 0.58 2013-01-16
 

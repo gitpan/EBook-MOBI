@@ -1,6 +1,6 @@
 package EBook::MOBI::Converter;
 
-our $VERSION = '0.61'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
+our $VERSION = '0.59'; # TRIAL VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
 
 use strict;
 use warnings;
@@ -458,13 +458,13 @@ According to L<mobipocket.com|http://www.mobipocket.com/dev/article.asp?BaseFold
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2012, 2013 Boris Däppen, all rights reserved.
+Copyright 2012 Boris Däppen, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under the same terms of Artistic License 2.0.
 
 =head1 AUTHOR
 
-Boris Däppen E<lt>bdaeppen.perl@gmail.comE<gt>
+Boris Däppen E<lt>boris_daeppen@bluewin.chE<gt>
 
 =cut
 

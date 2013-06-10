@@ -1,6 +1,6 @@
 package EBook::MOBI::Mhtml2Mobi;
 
-our $VERSION = '0.61'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
+our $VERSION = '0.59'; # TRIAL VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
 
 # This file contains some example code, borrowed from MobiPerl.
 # The code comes from the html2mobi file from MobiPerl.
@@ -314,7 +314,7 @@ If your input data ($mhtml) contains <img> tags which are pointing to images on 
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2012, 2013 Boris Däppen, all rights reserved.
+Copyright 2012 Boris Däppen, all rights reserved.
 
 Parts of this code are coming from MobiPerl.
 
@@ -326,6 +326,6 @@ You should have received a copy of the GNU General Public License along with thi
 
 =head1 AUTHOR
 
-Boris Däppen E<lt>bdaeppen.perl@gmail.comE<gt>
+Boris Däppen E<lt>boris_daeppen@bluewin.chE<gt>
 
 =cut

@@ -10,8 +10,11 @@ use ExtUtils::MakeMaker 6.30;
 
 my %WriteMakefileArgs = (
   "ABSTRACT" => "create an ebook in the MOBI format.",
-  "AUTHOR" => "Boris D\303\244ppen <bdaeppen.perl\@gmail.com>",
-  "BUILD_REQUIRES" => {},
+  "AUTHOR" => "Boris D\303\244ppen <boris_daeppen\@bluewin.ch>",
+  "BUILD_REQUIRES" => {
+    "Test::More" => 0,
+    "utf8" => 0
+  },
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
   },
@@ -20,29 +23,27 @@ my %WriteMakefileArgs = (
   "LICENSE" => "artistic_2",
   "NAME" => "EBook::MOBI",
   "PREREQ_PM" => {
-    "Carp" => "1.11",
-    "Data::Random" => "0.05",
-    "File::Basename" => "2.77",
-    "File::Copy" => "2.14",
-    "File::Find" => "1.14",
-    "File::Slurp" => 0,
-    "File::Spec" => "3.30",
-    "File::Temp" => "0.22",
-    "FindBin" => "1.5",
-    "GD" => "2.39",
-    "HTML::Entities" => "3.64",
-    "HTML::TreeBuilder" => "3.23",
-    "IO::String" => "1.08",
-    "Image::BMP" => "1.01",
-    "Image::Size" => "3.221",
-    "Pod::Coverage" => "0.21",
-    "Pod::Parser" => "1.37",
-    "Test::More" => "0.98",
-    "Test::Pod" => "1.00",
-    "Test::Pod::Coverage" => "1.08",
-    "Text::Trim" => "1.02"
+    "Carp" => 0,
+    "File::Basename" => 0,
+    "File::Copy" => 0,
+    "File::Spec" => 0,
+    "File::Temp" => 0,
+    "FindBin" => 0,
+    "GD" => 0,
+    "HTML::Entities" => 0,
+    "HTML::TreeBuilder" => 0,
+    "IO::String" => 0,
+    "Image::BMP" => 0,
+    "Image::Size" => 0,
+    "Pod::Parser" => 0,
+    "Text::Trim" => 0,
+    "constant" => 0,
+    "feature" => 0,
+    "strict" => 0,
+    "vars" => 0,
+    "warnings" => 0
   },
-  "VERSION" => "0.61",
+  "VERSION" => "0.59",
   "test" => {
     "TESTS" => "t/*.t"
   }
