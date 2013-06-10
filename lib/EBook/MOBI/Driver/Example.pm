@@ -1,6 +1,6 @@
 package EBook::MOBI::Driver::Example;
 
-our $VERSION = '0.61'; # TRIAL VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
+our $VERSION = '0.62'; # TRIAL VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
 
 use feature 'switch';
 
