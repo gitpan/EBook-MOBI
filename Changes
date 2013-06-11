@@ -1,13 +1,18 @@
 Changes for EBook::MOBI
 
+0.63 2013-06-11
+
+    - Merge all the git-confusing trouble with v0.61 and v0.62
+      Please be sure to use this version now... releasing is really a mess
+
 0.62 2013-06-10
 
     - Detect prereqs automatically
-    - Update author email
 
 0.61 2013-04-15
 
-    - this one got forgotten once... no clue what changed here :-/
+    - Add File::Slurp to prereqs in dist.ini (thx CpanTesters once again)
+    - Update email address of author in POD
 
 0.60 2013-04-10
 
@@ -16,10 +21,9 @@ Changes for EBook::MOBI
 0.59 2013-04-10
 
     - Remove all POD and VERSION tests from release packaging.
-    - Allow special chars (regex) in TOC
+    - Allow special chars (regex) in TOC (thx RENEEB)
     - Minor POD stuff (update license year)
     - Change directory ./example to ./examples
->>>>>>> 5994b7c25e5e20408ce5688eaec1b2c218154509
 
 0.58 2013-01-16
 
