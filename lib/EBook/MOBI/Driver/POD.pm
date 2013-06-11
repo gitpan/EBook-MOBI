@@ -1,6 +1,6 @@
 package EBook::MOBI::Driver::POD;
 
-our $VERSION = '0.63'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
+our $VERSION = '0.64'; # TRIAL VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
 
 use strict;
 use warnings;

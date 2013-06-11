@@ -79,7 +79,7 @@ use strict;
 #
 # TYPE: 2=book
 #
-our $VERSION = '0.63'; # VERSION: Should be 3 or 4
+our $VERSION = '0.64'; # TRIAL VERSION: Should be 3 or 4
 #
 # CODEPAGE: utf-8: 65001; westerner: 1252
 #
