@@ -3,13 +3,14 @@ abstract: 'create an ebook in the MOBI format.'
 author:
   - 'Boris Däppen <bdaeppen.perl@gmail.com>'
 build_requires:
+  Encode: 0
   File::Slurp: 0
   Test::More: 0
   utf8: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300028, CPAN::Meta::Converter version 2.120630'
+generated_by: 'Dist::Zilla version 4.300034, CPAN::Meta::Converter version 2.120630'
 license: artistic_2
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -35,4 +36,4 @@ requires:
   strict: 0
   vars: 0
   warnings: 0
-version: 0.64
+version: 0.65
