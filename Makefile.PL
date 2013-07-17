@@ -36,6 +36,7 @@ my %WriteMakefileArgs = (
     "Text::Trim" => 0,
     "constant" => 0,
     "feature" => 0,
+    "lib" => 0,
     "strict" => 0,
     "vars" => 0,
     "warnings" => 0
