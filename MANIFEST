@@ -47,3 +47,7 @@ t/48_encoding.t
 t/50_book_size.t
 t/backslashQ.pod
 t/backslashQ_pod.html
+xt/95_pm_have_version.t
+xt/96_pod_coverage.t
+xt/97_pod.t
+xt/changes.t
