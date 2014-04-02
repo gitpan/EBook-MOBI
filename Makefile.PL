@@ -36,7 +36,6 @@ my %WriteMakefileArgs = (
     "Pod::Parser" => 0,
     "Text::Trim" => 0,
     "constant" => 0,
-    "feature" => 0,
     "lib" => 0,
     "strict" => 0,
     "vars" => 0,
@@ -48,7 +47,7 @@ my %WriteMakefileArgs = (
     "Test::More" => 0,
     "utf8" => 0
   },
-  "VERSION" => "0.68",
+  "VERSION" => "0.69",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -74,7 +73,6 @@ my %FallbackPrereqs = (
   "Test::More" => 0,
   "Text::Trim" => 0,
   "constant" => 0,
-  "feature" => 0,
   "lib" => 0,
   "strict" => 0,
   "utf8" => 0,

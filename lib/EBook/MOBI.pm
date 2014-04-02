@@ -3,7 +3,7 @@ package EBook::MOBI;
 use strict;
 use warnings;
 
-our $VERSION = 0.68;
+our $VERSION = 0.69;
 
 # needed CPAN stuff
 use File::Temp qw(tempfile);
@@ -230,7 +230,8 @@ sub save {
                     $self->{filename},
                     $self->{author},
                     $self->{title},
-                    $codepage
+                    $codepage,
+                    $self->{header_opts}, 
                 );
 }
 
@@ -493,7 +494,7 @@ Use this method to seperate content and give some structure to your book.
 
 =head2 add_toc_once
 
-Use this method to place a table of contents into your book. You will B<need to> call the make() method later, B<after> you added all your content to the book. This is, because we need all the content - to be able to calculate the references where the TOC is pointing to. Only 'h1' tags starting and ending with a newline char will enter the TOC.
+Use this method to place a table of contents into your book. You will B<need to> call the make() method later, B<after> you added all your content to the book. This is, because we need all the content - to be able to calculate the references where the TOC is pointing to. B<Only 'h1' tags starting and ending with a newline char will enter the TOC.>
 
  $book->add_toc_once();
 
@@ -582,6 +583,15 @@ It depends on your input plugin, how you can add images to your book.
 For POD, see the special syntax described in L<EBook::MOBI::Driver::POD>.
 For adding manually in MHTML, see L<EBook::MOBI::Converter>.
 
+B<Shortcut> for lazy guys: The conclusion of reading L<EBook::MOBI::Driver::POD> will be that you can add images via the POD-driver as following:
+
+ $book->add_content( data   => '=for image /my/camel.jpg This is a Camel.',
+                     driver => 'EBook::MOBI::Driver::POD',
+                     driver_options => { pagemode => 0, head0_mode => 0 }
+                   );
+
+If you don't want to use the POD driver for adding images then you should read the section I<WHAT IS MHTML?> in the module L<EBook::MOBI::Converter> (as said already). But this needs some effort.
+
 =head1 SEE ALSO
 
 =over
@@ -628,6 +638,8 @@ For adding manually in MHTML, see L<EBook::MOBI::Converter>.
 =item * L<Renée Bäcker (RENEEB)|https://metacpan.org/author/RENEEB>
 
 =item * L<Rupert Lane (RUPERTL)|https://metacpan.org/author/RUPERTL>
+
+=item * L<Abby Pan (abbypan)|http://abbypan.github.io/>
 
 =back
 

@@ -79,7 +79,7 @@ use strict;
 #
 # TYPE: 2=book
 #
-our $VERSION = '0.68'; # TRIAL VERSION: Should be 3 or 4
+our $VERSION = '0.69'; # TRIAL VERSION: Should be 3 or 4
 #
 # CODEPAGE: utf-8: 65001; westerner: 1252
 #
@@ -158,6 +158,7 @@ my %langmap = (
 	       "no"    => 0x0014,
 	       "nb-no" => 0x0414,
 	       "nn-no" => 0x0814,
+	       "zh-cn" => 0x0804,
 );
 
 
