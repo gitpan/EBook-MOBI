@@ -1,6 +1,6 @@
 package EBook::MOBI::Mhtml2Mobi;
 
-our $VERSION = '0.69'; # TRIAL VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
+our $VERSION = '0.69'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
 
 # This file contains some example code, borrowed from MobiPerl.
 # The code comes from the html2mobi file from MobiPerl.
