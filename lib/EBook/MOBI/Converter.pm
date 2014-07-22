@@ -1,6 +1,6 @@
 package EBook::MOBI::Converter;
 
-our $VERSION = '0.69'; # VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
+our $VERSION = '0.7'; # TRIAL VERSION (hook for Dist::Zilla::Plugin::OurPkgVersion)
 
 use strict;
 use warnings;
@@ -33,8 +33,16 @@ sub text {
 sub title {
     my $self = shift;
     my $txt  = shift;
-    my $lvl  = shift || 1;
-    my $toc  = shift || 1;
+    my $lvl  = shift;
+    my $toc  = shift;
+
+    # default values for lvl and toc (issue #31 on github)
+    unless( defined $lvl ) {
+        $lvl = 1;
+    }
+    unless( defined $toc ) {
+        $toc = 1;
+    }
 
     die("Titles can't be higher than level 6\n") if ($lvl > 6);
 
